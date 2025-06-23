@@ -1,8 +1,14 @@
-from engines import BingSearch, QuarkSearch, BaiduSearch, SougouSearch
-from reranker import OpenAIEmbeddingReranker, Chunker
 from typing import List, Optional
+# Langchain自定义Tool的三种方式：
+#   1. @tool 修饰器
+#   2. 继承 BaseTool 类
+#   3. 使用 StructuredTool 类：继承自 BaseTool，实现了 Runnable 接口。
+#      StructuredTool 提供了工具定义函数，比继承 BaseTool 类方便，比修饰符功能多。
 from langchain_core.tools import StructuredTool
 from pydantic import BaseModel
+
+from engines import BingSearch, QuarkSearch, BaiduSearch, SougouSearch
+from reranker import OpenAIEmbeddingReranker, Chunker
 
 reranker = OpenAIEmbeddingReranker()
 
@@ -36,6 +42,7 @@ class WebTools():
             coroutine=self.link_parser_function
         )
 
+    # 通过搜索引擎搜索问题，获取到搜索相关 link 列表（主要是 title 和 url 等信息）
     async def web_search_function(self, questions: list) -> dict:
         if self.engine == "bing":
             search = BingSearch(browser_pool=self.browser_pool)
@@ -50,6 +57,7 @@ class WebTools():
         result = await search.response(questions)
         return result
 
+    # 获取 urls 的网页内容，如果 query 不为空，根据 query 与网页内容的相似度进行 rerank 重排
     async def link_parser_function(self, urls: list, query: Optional[str] = None) -> list:
         try:
             async with self.crawler_pool.get_crawler() as crawler:

@@ -1,4 +1,5 @@
 from typing import Any
+# dict[str, Any] 表示返回一个字典，其中 key 是字符串类型，值可以是任何类型。
 prompts: dict[str, Any] = {}
 
 prompts["web_prompt"] = """

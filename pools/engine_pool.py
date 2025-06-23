@@ -38,6 +38,10 @@ class BrowserPool:
         self.pool = Queue(maxsize=pool_size)  # 设置队列的最大长度为 pool_size
         self.lock = Semaphore(pool_size)  # 控制并发
         self.browser_instances = []  # 用来保存浏览器实例
+        # atexit：退出处理器
+        # atexit.register(func, *args, **kwargs)：将 func 注册为终止时执行的函数.
+        # atexit.unregister(func)：将 func 移出当解释器关闭时要运行的函数列表。
+        #
         # 注册退出时清理资源的函数
         atexit.register(lambda: asyncio.run(self.cleanup()))
 

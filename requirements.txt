@@ -11,3 +11,5 @@ langgraph
 langchain_community
 langchain-text-splitters
 torch
+gradio
+crawl4ai

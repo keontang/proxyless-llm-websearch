@@ -1,7 +1,14 @@
+# RecursiveCharacterTextSplitter 递归的将文本分割成指定大小的块。它的核心思想是根据一组分隔符(separators)逐步分割文本，
+# 直到每个块的大小都符合预设的 chunk_size。如果某个块仍然过大，它会继续递归地分割，直到满足条件为止。
+#   separators：一个字符串列表，表示用于分割文本的分隔符。默认值为 ["\n\n", "\n", " ", ""]，即首先按照段落分割，然后
+#              按照行分割，最后按空格分割，如果都不行则按照字符分割。
+#   chunk_size：每个块的最大大小(以字符数为单位)。默认值为 100。
+#   chunk_overlap：块与块之间的重叠部分的大小。默认值为 20。
 from langchain_text_splitters import MarkdownHeaderTextSplitter, RecursiveCharacterTextSplitter
 from typing import List, Optional
 
 class MarkdownSplitter:
+    # chunk_overlap: chunk 间重叠的文本大小
     def __init__(self, markdown_text: str, chunk_size: int = 150, chunk_overlap: int = 50):
         self.markdown_text = markdown_text
         self.chunk_size = chunk_size
@@ -63,10 +70,10 @@ class Chunker:
         """Initialize the Chunker with specified parameters.
 
         Args:
-            chunk_size (int, optional): Target size for each chunk. Defaults to 250.
-            chunk_overlap (int, optional): Number of characters to overlap. Defaults to 50.
+            chunk_size (int, optional): Target size for each chunk. Defaults to 512.
+            chunk_overlap (int, optional): Number of characters to overlap. Defaults to 128.
             separators (List[str], optional): Custom separators for splitting.
-                Defaults to ["\n\n", "\n", " "].
+                Defaults to ["\n\n", "\n"].
             length_function (callable, optional): Function to measure text length.
                 Defaults to len.
         """
