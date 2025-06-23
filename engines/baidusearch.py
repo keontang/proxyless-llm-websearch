@@ -63,6 +63,7 @@ class BaiduSearch:
             }
             if url:
                 results.append(data)
-            results = [json.loads(x) for x in set(json.dumps(d, sort_keys=True) for d in results)]
+        results = [json.loads(x) for x in set(json.dumps(d, sort_keys=True) for d in results)]
+        
         return results
 
