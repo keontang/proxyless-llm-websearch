@@ -78,7 +78,7 @@ class BrowserPool:
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
 
-        print("Cleaning up all browser instances.")
+        print("Cleaning up all browser instances.\n")
 
         # 并发清理所有实例
         await asyncio.gather(

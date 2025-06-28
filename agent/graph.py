@@ -40,7 +40,11 @@ from .prompt import prompts
 # 从 .env 文件读取键值对，并将它们添加到环境变量中
 # 主要是 OPENAI_API_KEY、OPENAI_BASE_URL、MODEL_NAME
 # EMBEDDING_MODEL_NAME、EMBEDDING_API_KEY、EMBEDDING_BASE_URL
-load_dotenv()
+#
+# 这里隐藏了一个大坑。当用户在 '.env' 中更新配置项的值时，是不会生效的。
+# 原因是 load_dotenv 默认不会更新已经存在的配置项。推荐使用override参数。
+#
+load_dotenv(override=True)
 
 def get_datetime_str():
     now = datetime.now()
@@ -56,13 +60,15 @@ class ToolsGraph:
         self.ts_manage = WebTools(browser_pool=self.browser_pool, crawler_pool=crawler_pool, engine=self.engine)
         self.tools = [self.ts_manage.web_search, self.ts_manage.link_parser]
         self.tool_node = ToolNode(self.tools)
-        self.llm = ChatOpenAI(
+        # llm with tools
+        self.llm_with_tools = ChatOpenAI(
             model=os.getenv("MODEL_NAME"),
             openai_api_key=os.getenv("OPENAI_API_KEY"),
             base_url=os.getenv("OPENAI_BASE_URL"),
             streaming=False,
             temperature=0,
         ).bind_tools(self.tools)
+
         # 定义图状态，这里使用的 MessagesState
         workflow = StateGraph(MessagesState)
         workflow.add_node("agent", self.call_model)
@@ -92,13 +98,15 @@ class ToolsGraph:
 
     async def call_model(self, state: MessagesState):
         messages = state["messages"]
-        print(messages)
-        response = await self.llm.ainvoke(messages)
+        print("Model input:\n", messages, "\n")
+        response = await self.llm_with_tools.ainvoke(messages)
         return {"messages": [response]}
 
     async def run(self, question):
         inputs = {"messages": [SystemMessage(content=prompts["web_prompt"] + f"\n当前时间：{get_datetime_str()}"),HumanMessage(content=question)]}
         final_state = await self.graph.ainvoke(inputs)
+        print("Final state:")
         for i in final_state["messages"]:
             print(i)
+        print("\n")
         return final_state["messages"][-1].content
